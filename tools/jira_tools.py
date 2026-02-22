@@ -23,14 +23,23 @@ class JiraAutomationTools:
         logger.debug(f"JIRA_SERVER_URL: {self.server}")
         logger.debug(f"JIRA_USER_EMAIL: {self.email}")
         logger.debug(f"JIRA_PROJECT_KEY: {self.project_key}")
+        self._client = None
         
-        try:
-            # Jira 클라이언트 초기화
-            self.client = JIRA(server=self.server, basic_auth=(self.email, self.token))
-            logger.info("JIRA 클라이언트 초기화 성공")
-        except Exception as e:
-            logger.error(f"JIRA 클라이언트 초기화 실패: {str(e)}")
-            raise
+        # 아래처럼 하면 에러 발생. 추후 해결 필요.
+        # try:
+        #     # Jira 클라이언트 초기화
+        #     self.client = JIRA(server=self.server, basic_auth=(self.email, self.token), options={'resilient' : False})
+        #     logger.info("JIRA 클라이언트 초기화 성공")
+        # except Exception as e:
+        #     logger.error(f"JIRA 클라이언트 초기화 실패: {str(e)}")
+        #     raise
+        
+    @property
+    def client(self):
+        # 실제 호출될 때 클라이언트를 생성하여 에러 방지 및 세션 유지
+        if self._client is None:
+            self._client = JIRA(server=self.server, basic_auth=(self.email, self.token), options={'resilient' : False})
+        return self._client
 
     def get_jira_issue(self, 
         issue_key: Annotated[str, Field(description="The key of the Jira issue (e.g., 'KAN-123')")]
