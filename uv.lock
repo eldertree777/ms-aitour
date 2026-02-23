@@ -1505,6 +1505,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "agent-framework" },
     { name = "aiohttp" },
+    { name = "azure-ai-projects" },
     { name = "azure-identity" },
     { name = "azure-search-documents" },
     { name = "azure-storage-blob" },
@@ -1526,6 +1527,7 @@ dependencies = [
 requires-dist = [
     { name = "agent-framework", specifier = "==1.0.0b260116" },
     { name = "aiohttp", specifier = ">=3.13.3" },
+    { name = "azure-ai-projects", specifier = ">=2.0.0b3" },
     { name = "azure-identity", specifier = ">=1.25.2" },
     { name = "azure-search-documents", specifier = "==11.7.0b2" },
     { name = "azure-storage-blob", specifier = ">=12.28.0" },
