@@ -12,7 +12,7 @@ if str(root_dir) not in sys.path:
     sys.path.insert(0, str(root_dir))
 
 # 3. 이제 정상적으로 import 가능
-from tools.google_api_tools import GmailAutomationTools
+from tools.gmail_tools import GmailAutomationTools
 
 def run_integration_test():
     # 1. 환경 변수 로드

@@ -12,12 +12,12 @@ from googleapiclient.errors import HttpError
 class GmailAutomationTools:
     def __init__(self):
         # 1. 환경 변수에서 경로 로드
-        self.cred_path = os.getenv("GMAIL_CREDENTIALS_PATH")
+        self.cred_path = os.getenv("GOOGLE_CREDENTIALS_PATH")
         self.token_path = os.getenv("GMAIL_TOKEN_PATH")
         
         # 경로 설정 확인 (에러 방지)
         if not self.cred_path or not self.token_path:
-            raise ValueError("환경 변수 'GMAIL_CREDENTIALS_PATH' 또는 'GMAIL_TOKEN_PATH'가 설정되지 않았습니다.")
+            raise ValueError("환경 변수 'GOOGLE_CREDENTIALS_PATH' 또는 'GMAIL_TOKEN_PATH'가 설정되지 않았습니다.")
             
         self.scopes = ["https://www.googleapis.com/auth/gmail.modify"]
         
