@@ -1,8 +1,11 @@
 import os
+import asyncio
 # from azure.ai.projects.models import AzureOpenAIChatClient
 # from azure.ai.projects import AzureOpenAIChatClient
 from agent_framework.azure import AzureOpenAIChatClient
-from tools.google_api_tools import GmailAutomationTools, GoogleTasksAutomationTools
+from tools.gtask_tools import GoogleTasksAutomationTools
+from tools.gmail_tools import GmailAutomationTools
+
 from dotenv import load_dotenv
 
 def create_task_management_agent():
@@ -77,7 +80,6 @@ async def main():
     # 예: "오늘 온 메일 확인해서 할 일로 등록해줘" 
     # 또는 "최근 메일 3개 요약하고 중요한 건 테스크에 추가해줘"
     user_query = input("에이전트에게 내릴 명령을 입력하세요: ")
-    user_query = "오늘온 메일들을 확인해서 할 일로 등록해줘." if not user_query.strip() else user_query
     
     if not user_query.strip():
         user_query = "오늘 온 메일을 읽고 처리해야 할 일들을 Google Tasks에 등록해줘."

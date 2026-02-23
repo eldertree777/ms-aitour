@@ -1,3 +1,5 @@
+import base64
+from email.mime.text import MIMEText
 import os
 from datetime import datetime
 from typing import Annotated
@@ -114,3 +116,29 @@ class GmailAutomationTools:
             return "\n".join(output)
         except Exception as e:
             return f"최근 메일 조회 중 오류 발생: {str(e)}"
+        
+    def send_email(self,
+        to: Annotated[str, Field(description="수신자 이메일 주소")],
+        subject: Annotated[str, Field(description="이메일 제목")],
+        body: Annotated[str, Field(description="이메일 본문 내용")]
+    ) -> str:
+        """새로운 이메일을 작성하여 전송합니다."""
+        try:
+            # 1. MIME 메세지 생성
+            message = MIMEText(body)
+            message['to'] = to
+            message['subject'] = subject
+            
+            # 2. base64 URL-safe 인코딩
+            # Gmail API는 이메일 원문(raw)을 base64로 인코딩하여 전송해야 합니다.
+            raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+            
+            # 3. 이메일 전송 호출
+            send_request = self.service.users().messages().send(
+                userId='me', 
+                body={'raw': raw_message}
+            ).execute()
+            
+            return f"성공적으로 이메일을 전송했습니다. (메시지 ID: {send_request['id']})"
+        except Exception as e:
+            return f"이메일 전송 중 오류 발생: {str(e)}"

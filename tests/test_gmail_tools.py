@@ -41,6 +41,26 @@ def run_integration_test():
         recent = gmail_tools.get_recent_emails(count=3)
         print(recent)
         print("-" * 30)
+        
+        # 6. 메일 전송 테스트 (자기 자신에게 전송)
+        print("4. 메일 전송 테스트 (셀프 전송):")
+        
+        # TODO: 아래 이메일 주소를 본인의 Gmail 주소로 수정하세요.
+        my_email = "jewon9706@gmail.com" 
+        
+        test_subject = "오늘의 특별 과제 알림"
+        test_body = "오늘까지 받아쓰기 100번 쓰기"
+        
+        print(f"수신자: {my_email}")
+        print(f"내용: {test_body}")
+        
+        send_result = gmail_tools.send_email(
+            to=my_email, 
+            subject=test_subject, 
+            body=test_body
+        )
+        print(send_result)
+        print("-" * 30)
 
     except Exception as e:
         print(f"[실패] 테스트 중 오류 발생: {e}")
