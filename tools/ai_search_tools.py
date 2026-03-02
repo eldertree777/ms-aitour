@@ -15,6 +15,7 @@ import os
 import time
 import logging
 import hashlib
+from datetime import datetime, timezone
 from typing import Annotated
 
 from pydantic import Field
@@ -43,7 +44,7 @@ logging.basicConfig(
 
 # 유사도 임계치 (이 값 이상이면 기존 티켓이 존재한다고 판단)
 SIMILARITY_THRESHOLD = 0.85
-INDEX_NAME = "sdd-tickets-index"
+INDEX_NAME = "sdd-tickets-index2"
 VECTOR_DIMENSIONS = 1536  # text-embedding-3-small / text-embedding-ada-002 기준
 
 
@@ -169,6 +170,12 @@ class AISearchTools:
                 name="github_issue_link",
                 type=SearchFieldDataType.String,
                 filterable=True
+            ),
+            SimpleField(
+                name="created_at",
+                type=SearchFieldDataType.DateTimeOffset,
+                filterable=True,
+                sortable=True
             ),
         ]
 
@@ -321,6 +328,7 @@ class AISearchTools:
                 "spec_ticket_vector": vector,
                 "dev_ticket_link": dev_ticket_link,
                 "github_issue_link": github_issue_link,
+                "created_at": datetime.now(timezone.utc).isoformat(),
             }
 
             # merge_or_upload: 기존 문서가 있으면 업데이트, 없으면 새로 생성
@@ -342,3 +350,51 @@ class AISearchTools:
         except Exception as e:
             logger.error(f"티켓 매핑 저장 실패: {str(e)}", exc_info=True)
             return f"Error saving ticket mapping: {str(e)}"
+
+    def get_ticket_history(self,
+        top: Annotated[int, Field(description="반환할 최근 티켓 매핑 수 (기본값: 5)")] = 5
+    ) -> str:
+        """
+        최근 저장된 티켓 매핑 히스토리를 조회합니다.
+        created_at 기준 최신순으로 정렬하여 반환합니다.
+        기본 5개이며, 사용자 요청에 따라 더 많이 반환할 수 있습니다.
+        """
+        logger.info(f"티켓 히스토리 조회: 최근 {top}개")
+        try:
+            self._ensure_index_exists()
+
+            results = self._make_search_client().search(
+                search_text="*",
+                select=["spec_ticket_link", "spec_ticket_content", "dev_ticket_link", "github_issue_link", "created_at"],
+                order_by=["created_at desc"],
+                top=top,
+                include_total_count=True
+            )
+
+            items = []
+            for result in results:
+                items.append({
+                    "spec_ticket_link": result.get("spec_ticket_link"),
+                    "spec_ticket_content": (result.get("spec_ticket_content") or "")[:100],
+                    "dev_ticket_link": result.get("dev_ticket_link"),
+                    "github_issue_link": result.get("github_issue_link"),
+                    "created_at": result.get("created_at"),
+                })
+
+            if not items:
+                return "📭 저장된 티켓 매핑 히스토리가 없습니다."
+
+            total = results.get_count()
+            lines = [f"📋 최근 티켓 매핑 히스토리 ({len(items)}개 / 전체 {total}개):"]
+            for i, item in enumerate(items, 1):
+                created = item["created_at"] or "N/A"
+                lines.append(f"\n[{i}] 생성일: {created}")
+                lines.append(f"    사양 티켓: {item['spec_ticket_link']}")
+                lines.append(f"    내용 요약: {item['spec_ticket_content']}...")
+                lines.append(f"    개발 티켓: {item['dev_ticket_link']}")
+                lines.append(f"    GitHub 이슈: {item['github_issue_link']}")
+            return "\n".join(lines)
+
+        except Exception as e:
+            logger.error(f"히스토리 조회 실패: {str(e)}", exc_info=True)
+            return f"Error retrieving ticket history: {str(e)}"

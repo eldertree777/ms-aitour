@@ -56,7 +56,7 @@ def create_sdd_agent():
 
 ### 2단계: 기존 티켓 검색
 - `search_similar_tickets`를 사용하여 사양 티켓의 description으로 유사한 기존 개발 티켓을 검색합니다.
-- 유사 티켓이 이미 존재하면: 기존 개발 티켓 링크와 GitHub 이슈 링크를 사용자에게 반환하고 종료합니다.
+- 유사 티켓이 이미 존재하면: 기존 개발 티켓 링크와 GitHub 이슈 링크, 티켓 내용을 사용자에게 반환하고 종료합니다.
 
 ### 3단계: 새 티켓 생성 (기존 티켓이 없는 경우)
 - `create_jira_issue`를 사용하여 사양 내용 기반 개발 티켓("개발" 타입)을 생성합니다.
@@ -68,6 +68,10 @@ def create_sdd_agent():
   - 사양 티켓 내용(description)
   - 생성된 개발 티켓 링크
   - 생성된 GitHub 이슈 링크
+
+### 히스토리 조회
+- 사용자가 히스토리/이력을 요청하면 `get_ticket_history`를 사용하여 최근 티켓 기록을 보여줍니다.
+- 기본 5개를 반환하며, 사용자가 더 많은 수를 요청하면 해당 수만큼 반환합니다.
 
 명확하고 유용한 이슈를 작성해야 합니다. 기술적인 내용보다는 어떤 기능이 필요한 지에 초점을 맞춰 작성하세요. 
 사양 티켓의 description을 최대한 활용하여 이슈를 작성하되, 불필요한 내용은 제거하고 실제 개발에 도움이 되도록 작성하는 것이 좋습니다.
@@ -81,6 +85,7 @@ def create_sdd_agent():
             github_tools.get_issue,
             ai_search_tools.search_similar_tickets,
             ai_search_tools.save_ticket_mapping,
+            ai_search_tools.get_ticket_history,
         ]
     )
     
